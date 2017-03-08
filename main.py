@@ -20,7 +20,7 @@ while not gameExit:
         #So we can exit the game through the X button in the game window.
         if event.type == pygame.QUIT:
             gameExit = True
-        #print(event)
+        print(event)
 
 
 

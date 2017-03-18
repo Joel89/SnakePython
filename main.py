@@ -1,5 +1,7 @@
 import pygame
 import time
+import random
+
 
 #----------------------------------Functions that need to iniatize to run games. -------------#
 pygame.init()
@@ -8,6 +10,7 @@ pygame.init()
 white = (255,255,255)
 black = (0,0,0)
 red = (255,0,0)
+green = (0,155,0)
 
 #The variables for the gameDisplay size.
 display_width = 800
@@ -37,6 +40,13 @@ block_size = 10
 # Create a font object
 font = pygame.font.SysFont(None, 25)
 
+#Function to create the snake.
+def snake(block_size, snakeList):
+    for XandY in snakeList:
+        # Parameters are, where to draw it, which color, size
+        pygame.draw.rect(gameDisplay, green, [XandY[0], XandY[1], block_size, block_size])
+
+
 # Function to write out message to the user
 def message_to_screen(message, color):
     screen_text = font.render(message, True, color)
@@ -58,6 +68,15 @@ def gameLoop():
     # Variable to success when you press down a key it continue.
     lead_x_change = 0
     lead_y_change = 0
+
+    #The array that is going to be the snake body.
+    snakeList = []
+    snakeLength = 1
+
+    #Variables for the apple. Need to be -block_size so the apple does not appear outside the display.
+    #We use round to get the apple perfect align to compare to the snake.
+    randAppleX = round(random.randrange(0,display_width-block_size)/10.0)* 10.0
+    randAppleY = round(random.randrange(0,display_height-block_size)/10.0)*10.0
 
     while not gameExit:
 
@@ -82,7 +101,7 @@ def gameLoop():
                 gameOver = True
             #print(event)
 
-            #The logic for the movement
+        # ----------------------Logic for the movement---------------------------------------------------#
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
                     #lead_x -= 10
@@ -102,9 +121,11 @@ def gameLoop():
                     lead_y_change = block_size
                     lead_x_change = 0
 
-        #The boundaries logic
+        # ----------------------------------------------------------------------------------------------------#
+
+        # -------------------------The boundaries logic-------------------------------------------------------#
             # Checking if snake is over the gameDisplay limits.
-        if lead_x_change >= display_width or lead_x <= 0 or lead_y >= display_height or lead_y <= 0:
+        if lead_x >= display_width or lead_x <= 0 or lead_y >= display_height or lead_y <= 0:
             gameOver = True
 
 
@@ -117,9 +138,47 @@ def gameLoop():
         lead_y += lead_y_change
 
         gameDisplay.fill(white)
-        # Parameters are, where to draw it, which color, size
-        pygame.draw.rect(gameDisplay, black, [lead_x,lead_y, block_size,block_size])
+
+        applethickness = 30
+        #The order by draw items is important, you want the item that is most important draw last, in our case the snake.
+        pygame.draw.rect(gameDisplay, red, [randAppleX,randAppleY, applethickness,applethickness])
+
+        #The array that is going to extend the snake.
+        snakeHead = []
+        snakeHead.append(lead_x)
+        snakeHead.append(lead_y)
+        snakeList.append(snakeHead)
+
+        #Need this condition to so the snake does not getting constant bigger.
+        if len(snakeList) > snakeLength:
+            del snakeList[0]
+
+        #Loop to check if we get a overleap in our snake, the loope goes throw all the list except
+        #the head of the snake (:-1).  Doing so to prevent so user can't change directions and run over the snake.
+        for eachSegment in snakeList[:-1]:
+            if eachSegment == snakeHead:
+                gameOver = True
+
+        snake(block_size, snakeList)
+
         pygame.display.update()
+        # -----------------------------------------------------------------------------------------------#
+
+
+        # -------------------------The apple logic-------------------------------------------------------#
+        #When the snake eats the apple.
+        '''
+        if lead_x == randAppleX and lead_y == randAppleY:
+            randAppleX = round(random.randrange(0, display_width - block_size) / 10.0) * 10.0
+            randAppleY = round(random.randrange(0, display_height - block_size) / 10.0) * 10.0
+            snakeLength += 1
+        '''
+        if lead_x >= randAppleX and lead_x <= randAppleX + applethickness:
+            if lead_y >= randAppleY and lead_y <= randAppleY + applethickness:
+                randAppleX = round(random.randrange(0, display_width - block_size) / 10.0) * 10.0
+                randAppleY = round(random.randrange(0, display_height - block_size) / 10.0) * 10.0
+                snakeLength += 1
+        # ---------------------------------------------------------------------------------------------#
 
         #Parameter is the frame/sec, 30 is standard. 15 for Snake game is okey.
         clock.tick(FramePerSecond)
@@ -129,6 +188,9 @@ def gameLoop():
     #----------------------------------Functions that need to quit the game. ---------------------#
     pygame.quit()
     quit()
+    # ---------------------------------------------------------------------------------------------#
+
+
 #---------------------------------gameLoop function ends---------------------------------------------#
 
 gameLoop()

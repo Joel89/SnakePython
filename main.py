@@ -23,6 +23,11 @@ FramePerSecond = 15
 gameDisplay = pygame.display.set_mode((display_width,display_height))
 pygame.display.set_caption('Slither')
 
+# Loading up the snakehead image that is in the same folder as the main python file.
+img = pygame.image.load('snakehead.png')
+
+#Variable that is used to rotate the snakehead image. Namned it Right because it is the direction it begins with.
+direction = "right"
 
 # pygame.display.flip() is working like update,but flip is going to update the whole surface.
 pygame.display.update()
@@ -42,22 +47,59 @@ font = pygame.font.SysFont(None, 25)
 
 #Function to create the snake.
 def snake(block_size, snakeList):
-    for XandY in snakeList:
+
+    if direction == "right":
+        #Rotates the snakehead image 270 degrees.
+        head = pygame.transform.rotate(img, 270)
+        print ("hej")
+
+    if direction == "left":
+        #Rotates the snakehead image 270 degrees.
+        head = pygame.transform.rotate(img, 90)
+
+    if direction == "up":
+        #Rotates the snakehead image 270 degrees.
+        head = img
+
+    if direction == "down":
+        #Rotates the snakehead image 270 degrees.
+        head = pygame.transform.rotate(img, 180)
+
+
+    # Add the snakehead img to the gamedisplay. snakeList[-1][0] is the last element in the list and the X value,
+    # snakeList[-1][1] is the last element in the list and the Y value,
+    gameDisplay.blit(head, (snakeList[-1][0], snakeList[-1][1]))
+
+    # Loop through all the snakelist except the last element which is the snakehead.
+    for XandY in snakeList[:-1]:
         # Parameters are, where to draw it, which color, size
         pygame.draw.rect(gameDisplay, green, [XandY[0], XandY[1], block_size, block_size])
+
+#Function that create the text Surface and return two values.
+def text_objects(text,color):
+    textSurface = font.render(text, True, color)
+    return textSurface, textSurface.get_rect()
 
 
 # Function to write out message to the user
 def message_to_screen(message, color):
+    ''' Old version. The text does not get centered.
     screen_text = font.render(message, True, color)
-
     # the blit function takes the parameters and add them to the screen.
     gameDisplay.blit(screen_text, [display_width/2,display_height/2])
-
+    '''
+    #The new version get the text centered thans by using the textRect.
+    # Get the values to the textSurface and textRect.
+    textSurface, textRect = text_objects(message,color)
+    textRect.center = (display_width/2), (display_height/2)
+    # the blit function takes the parameters and add them to the screen.
+    gameDisplay.blit(textSurface, textRect)
 
 
 #------------------------ gameLoop Function -----------------------------#
 def gameLoop():
+    # Global the variable to modify the variable direction that is using to change the snakehead image.
+    global direction
     gameExit = False
     gameOver = False
 
@@ -65,8 +107,8 @@ def gameLoop():
     lead_x = display_width / 2
     lead_y = display_height / 2
 
-    # Variable to success when you press down a key it continue.
-    lead_x_change = 0
+    # Variable to success when you press down a key the snake continues forward.
+    lead_x_change = 10
     lead_y_change = 0
 
     #The array that is going to be the snake body.
@@ -104,25 +146,30 @@ def gameLoop():
             #So we can exit the game through the X button in the game window.
             if event.type == pygame.QUIT:
                 gameOver = True
-            #print(event)
 
         # ----------------------Logic for the movement---------------------------------------------------#
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_LEFT:
+
+                    # change the value of the variable so we can rotate the snakehead image.
+                    direction = "left"
                     #lead_x -= 10
                     lead_x_change = -block_size
                     #We need to change y also so we dont get the snake to run diagonal.
                     lead_y_change = 0
                 elif event.key == pygame.K_RIGHT:
+                    direction = "right"
                     #lead_x += 10
                     lead_x_change = block_size
                     lead_y_change = 0
 
                 elif event.key == pygame.K_UP:
+                    direction = "up"
                     lead_y_change = -block_size
                     # We need to change x also so we dont get the snake to run diagonal.
                     lead_x_change = 0
                 elif event.key == pygame.K_DOWN:
+                    direction = "down"
                     lead_y_change = block_size
                     lead_x_change = 0
 

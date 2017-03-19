@@ -51,7 +51,6 @@ def snake(block_size, snakeList):
     if direction == "right":
         #Rotates the snakehead image 270 degrees.
         head = pygame.transform.rotate(img, 270)
-        print ("hej")
 
     if direction == "left":
         #Rotates the snakehead image 270 degrees.
@@ -128,6 +127,9 @@ def gameLoop():
             gameDisplay.fill(white)
             message_to_screen("Game over, press C to play again or Q to quit", red)
             pygame.display.update()
+
+            # Need to rotate the snakehead image so it start right from the beginning.
+            direction = "right"
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -252,5 +254,4 @@ def gameLoop():
 
 
 #---------------------------------gameLoop function ends---------------------------------------------#
-
 gameLoop()

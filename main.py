@@ -35,7 +35,7 @@ pygame.display.update()
 clock = pygame.time.Clock()
 
 #Variable for the block size for the snake.
-block_size = 10
+block_size = 20
 
 # Create a font object
 font = pygame.font.SysFont(None, 25)
@@ -75,8 +75,9 @@ def gameLoop():
 
     #Variables for the apple. Need to be -block_size so the apple does not appear outside the display.
     #We use round to get the apple perfect align to compare to the snake.
-    randAppleX = round(random.randrange(0,display_width-block_size)/10.0)* 10.0
-    randAppleY = round(random.randrange(0,display_height-block_size)/10.0)*10.0
+
+    randAppleX = round(random.randrange(0,display_width-block_size)) #/10.0)* 10.0
+    randAppleY = round(random.randrange(0,display_height-block_size))#/10.0)*10.0
 
     while not gameExit:
 
@@ -87,6 +88,10 @@ def gameLoop():
             pygame.display.update()
 
             for event in pygame.event.get():
+                if event.type == pygame.QUIT:
+                    gameExit = True
+                    gameOver = False
+
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_q:
                         gameExit = True
@@ -166,26 +171,34 @@ def gameLoop():
 
 
         # -------------------------The apple logic-------------------------------------------------------#
-        #When the snake eats the apple.
-        '''
-        if lead_x == randAppleX and lead_y == randAppleY:
-            randAppleX = round(random.randrange(0, display_width - block_size) / 10.0) * 10.0
-            randAppleY = round(random.randrange(0, display_height - block_size) / 10.0) * 10.0
-            snakeLength += 1
+        # When the snake eats the apple.
+
         '''
         if lead_x >= randAppleX and lead_x <= randAppleX + applethickness:
             if lead_y >= randAppleY and lead_y <= randAppleY + applethickness:
-                randAppleX = round(random.randrange(0, display_width - block_size) / 10.0) * 10.0
-                randAppleY = round(random.randrange(0, display_height - block_size) / 10.0) * 10.0
+                randAppleX = round(random.randrange(0, display_width - block_size))# / 10.0) * 10.0
+                randAppleY = round(random.randrange(0, display_height - block_size))# / 10.0) * 10.0
                 snakeLength += 1
         # ---------------------------------------------------------------------------------------------#
+        '''
+        if lead_x > randAppleX and lead_x < randAppleX + applethickness or lead_x + block_size > randAppleX and lead_x + block_size < randAppleX + applethickness:
+            #print "x crossover"
+            if lead_y > randAppleY and lead_y < randAppleY + applethickness:
+                randAppleX = round(random.randrange(0, display_width - block_size))  # / 10.0) * 10.0
+                randAppleY = round(random.randrange(0, display_height - block_size))  # / 10.0) * 10.0
+                snakeLength += 1
 
-        #Parameter is the frame/sec, 30 is standard. 15 for Snake game is okey.
+            elif lead_y + block_size > randAppleY and lead_y + block_size < randAppleY + applethickness:
+                randAppleX = round(random.randrange(0, display_width - block_size))# / 10.0) * 10.0
+                randAppleY = round(random.randrange(0, display_height - block_size))# / 10.0) * 10.0
+                snakeLength += 1
+                
+        # Parameter is the frame/sec, 30 is standard. 15 for Snake game is okey.
         clock.tick(FramePerSecond)
 
     # ---------------------------------------------------------------------------------------------#
 
-    #----------------------------------Functions that need to quit the game. ---------------------#
+    #----------------------------------Functions that needs to quit the game. ---------------------#
     pygame.quit()
     quit()
     # ---------------------------------------------------------------------------------------------#

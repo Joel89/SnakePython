@@ -23,8 +23,13 @@ FramePerSecond = 15
 gameDisplay = pygame.display.set_mode((display_width,display_height))
 pygame.display.set_caption('Slither')
 
-# Loading up the snakehead image that is in the same folder as the main python file.
+# Loading up the snakehead image and apple image that is in the same folder as the main python file.
 img = pygame.image.load('snakehead.png')
+appleimg = pygame.image.load('apple.png')
+
+# different alternative to the snake to eat.
+frogimg = pygame.image.load('frog.png')
+pacmanimg = pygame.image.load('pacman.png')
 
 #Variable that is used to rotate the snakehead image. Namned it Right because it is the direction it begins with.
 direction = "right"
@@ -42,8 +47,62 @@ clock = pygame.time.Clock()
 #Variable for the block size for the snake.
 block_size = 20
 
-# Create a font object
-font = pygame.font.SysFont(None, 25)
+# Creates different font objects so we can use different font size and styles.
+# smallfont = pygame.font.Font(None, 25) is used to when you want a font from ex Google.
+smallfont = pygame.font.SysFont("comicsansms", 25)
+medfont = pygame.font.SysFont("comicsansms", 50)
+largefont = pygame.font.SysFont("comicsansms", 80)
+
+#Function for the start menu.
+def game_intro():
+    intro = True
+
+    while intro:
+
+        # Response to the user input.
+        for event in pygame.event.get():
+            #So the user can quit by clicking the X window button.
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+
+            #If the user click on the keyboard.
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_c:
+                    intro = False
+                elif event.key == pygame.K_q:
+                    pygame.quit()
+                    quit()
+
+        gameDisplay.fill(white)
+
+        # y_displace and size are parameter default, does not need to write out but get better overview to display the
+        # variable names.
+        message_to_screen("Welcome to Slither",
+                          green,
+                          y_displace = -100,
+                          size="large")
+        # the parameter size default is small.
+        message_to_screen("The objective of the game is to eat red apples",
+                          black,
+                          -30)
+
+        message_to_screen("The more apples you eat, the longer you get",
+                          black,
+                          10)
+
+        message_to_screen("If you run into yourself, or the edges, you die!",
+                          black,
+                          50)
+
+        message_to_screen("Press C to play or Q to quit.",
+                          black,
+                          180)
+
+        pygame.display.update()
+        #The parameter is frame/second. The higher number the quicker response at the user input.
+        clock.tick(15)
+
 
 #Function to create the snake.
 def snake(block_size, snakeList):
@@ -75,30 +134,42 @@ def snake(block_size, snakeList):
         pygame.draw.rect(gameDisplay, green, [XandY[0], XandY[1], block_size, block_size])
 
 #Function that create the text Surface and return two values.
-def text_objects(text,color):
-    textSurface = font.render(text, True, color)
+def text_objects(text,color,size):
+    if size == "small":
+        textSurface = smallfont.render(text, True, color)
+    elif size == "medium":
+        textSurface = medfont.render(text, True, color)
+    elif size == "large":
+        textSurface = largefont.render(text, True, color)
+
     return textSurface, textSurface.get_rect()
 
 
-# Function to write out message to the user
-def message_to_screen(message, color):
+# Function to write out message to the user. The function has two parameter default, y_displace parameter that
+#decide where the text should be displayed. Size is the font size.
+def message_to_screen(message, color, y_displace=0, size="small"):
     ''' Old version. The text does not get centered.
     screen_text = font.render(message, True, color)
     # the blit function takes the parameters and add them to the screen.
     gameDisplay.blit(screen_text, [display_width/2,display_height/2])
     '''
-    #The new version get the text centered thans by using the textRect.
+    #The new version get the text centered by using the textRect.
     # Get the values to the textSurface and textRect.
-    textSurface, textRect = text_objects(message,color)
-    textRect.center = (display_width/2), (display_height/2)
+    textSurface, textRect = text_objects(message,color,size)
+    textRect.center = (display_width/2), (display_height/2) + y_displace
     # the blit function takes the parameters and add them to the screen.
     gameDisplay.blit(textSurface, textRect)
+
 
 
 #------------------------ gameLoop Function -----------------------------#
 def gameLoop():
     # Global the variable to modify the variable direction that is using to change the snakehead image.
     global direction
+
+    # Need to rotate the snakehead image so it start right from the beginning.
+    direction = "right"
+
     gameExit = False
     gameOver = False
 
@@ -125,11 +196,20 @@ def gameLoop():
         while gameOver == True:
 
             gameDisplay.fill(white)
-            message_to_screen("Game over, press C to play again or Q to quit", red)
-            pygame.display.update()
 
-            # Need to rotate the snakehead image so it start right from the beginning.
-            direction = "right"
+            #If the function has a default parameter it is recommended to write out the variable name so it easier to get
+            # understanding of the code.
+            message_to_screen("Game over",
+                              red,
+                              y_displace=-50,
+                              size="large")
+
+            message_to_screen( "Press C to play again or Q to quit",
+                               black,
+                               50,
+                               "medium")
+
+            pygame.display.update()
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
@@ -195,7 +275,17 @@ def gameLoop():
 
         applethickness = 30
         #The order by draw items is important, you want the item that is most important draw last, in our case the snake.
-        pygame.draw.rect(gameDisplay, red, [randAppleX,randAppleY, applethickness,applethickness])
+        # Old version that the apple is a rectangle.
+        # pygame.draw.rect(gameDisplay, red, [randAppleX,randAppleY, applethickness,applethickness])
+
+        # Put out the apple image to the screen.
+        #gameDisplay.blit(appleimg, (randAppleX, randAppleY))
+
+        #Put out a frog image to the screen.
+        #gameDisplay.blit(frogimg, (randAppleX, randAppleY))
+
+        #Put out a pacman image to the screen.
+        gameDisplay.blit(pacmanimg, (randAppleX, randAppleY))
 
         #The array that is going to extend the snake.
         snakeHead = []
@@ -254,4 +344,6 @@ def gameLoop():
 
 
 #---------------------------------gameLoop function ends---------------------------------------------#
+
+game_intro()
 gameLoop()

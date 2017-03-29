@@ -23,6 +23,12 @@ FramePerSecond = 15
 gameDisplay = pygame.display.set_mode((display_width,display_height))
 pygame.display.set_caption('Slither')
 
+#Create the icon.
+icon = pygame.image.load('apple.png')
+# Best size for a icon is 32*32.
+pygame.display.set_icon(icon)
+
+
 # Loading up the snakehead image and apple image that is in the same folder as the main python file.
 img = pygame.image.load('snakehead.png')
 appleimg = pygame.image.load('apple.png')
@@ -46,6 +52,9 @@ clock = pygame.time.Clock()
 
 #Variable for the block size for the snake.
 block_size = 20
+
+#Variable for the apple size.
+applethickness = 30
 
 # Creates different font objects so we can use different font size and styles.
 # smallfont = pygame.font.Font(None, 25) is used to when you want a font from ex Google.
@@ -95,7 +104,7 @@ def game_intro():
                           black,
                           50)
 
-        message_to_screen("Press C to play or Q to quit.",
+        message_to_screen("Press C to play, P to pause or Q to quit.",
                           black,
                           180)
 
@@ -160,6 +169,52 @@ def message_to_screen(message, color, y_displace=0, size="small"):
     # the blit function takes the parameters and add them to the screen.
     gameDisplay.blit(textSurface, textRect)
 
+# So the user can pause the game.
+def pause():
+    paused = True
+
+    while paused:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_c:
+                    paused = False
+
+                elif event.key == pygame.K_q:
+                    pygame.quit()
+                    quit()
+
+
+        gameDisplay.fill(white)
+        message_to_screen("Paused",
+                          black,
+                          -100,
+                          size="large")
+        message_to_screen("Press C to continue or Q to quit.",
+                          black,
+                          25)
+        pygame.display.update()
+        clock.tick(5)
+
+# Function that produce the score for the user.
+def score(score):
+    text = smallfont.render("Score: " + str(score), True ,black)
+    gameDisplay.blit(text,[0,0])
+
+# Creates the Apple's x coordinator by random number.
+def randAppleGenerator():
+
+    #Variables for the apple. Need to be -block_size so the apple does not appear outside the display.
+    #We use round to get the apple perfect align to compare to the snake.
+    randAppleX = round(random.randrange(0, display_width - applethickness))  # / 10.0) * 10.0
+    randAppleY = round(random.randrange(0, display_height - applethickness))  # / 10.0) * 10.0
+
+    return randAppleX,randAppleY
+
+randAppleX, randAppleY = randAppleGenerator()
 
 
 #------------------------ gameLoop Function -----------------------------#
@@ -185,11 +240,8 @@ def gameLoop():
     snakeList = []
     snakeLength = 1
 
-    #Variables for the apple. Need to be -block_size so the apple does not appear outside the display.
-    #We use round to get the apple perfect align to compare to the snake.
-
-    randAppleX = round(random.randrange(0,display_width-block_size)) #/10.0)* 10.0
-    randAppleY = round(random.randrange(0,display_height-block_size))#/10.0)*10.0
+    # Gives the coordinates to the apple.
+    randAppleX, randAppleY = randAppleGenerator()
 
     while not gameExit:
 
@@ -255,6 +307,10 @@ def gameLoop():
                     lead_y_change = block_size
                     lead_x_change = 0
 
+                # If the userclick P the game get paused.
+                elif event.key == pygame.K_p:
+                    pause()
+
         # ----------------------------------------------------------------------------------------------------#
 
         # -------------------------The boundaries logic-------------------------------------------------------#
@@ -273,7 +329,6 @@ def gameLoop():
 
         gameDisplay.fill(white)
 
-        applethickness = 30
         #The order by draw items is important, you want the item that is most important draw last, in our case the snake.
         # Old version that the apple is a rectangle.
         # pygame.draw.rect(gameDisplay, red, [randAppleX,randAppleY, applethickness,applethickness])
@@ -305,6 +360,10 @@ def gameLoop():
 
         snake(block_size, snakeList)
 
+        # Update the score. We can use snakeLength as a value to the score because for each apple the snake
+        #eats, the longer the snake gets. But snakeLength starting at 1 so we need to take -1 from the beginning.
+        score(snakeLength-1)
+
         pygame.display.update()
         # -----------------------------------------------------------------------------------------------#
 
@@ -323,13 +382,15 @@ def gameLoop():
         if lead_x > randAppleX and lead_x < randAppleX + applethickness or lead_x + block_size > randAppleX and lead_x + block_size < randAppleX + applethickness:
             #print "x crossover"
             if lead_y > randAppleY and lead_y < randAppleY + applethickness:
-                randAppleX = round(random.randrange(0, display_width - block_size))  # / 10.0) * 10.0
-                randAppleY = round(random.randrange(0, display_height - block_size))  # / 10.0) * 10.0
+
+                #Gives the coordinates to the apple.
+                randAppleX, randAppleY = randAppleGenerator()
                 snakeLength += 1
 
             elif lead_y + block_size > randAppleY and lead_y + block_size < randAppleY + applethickness:
-                randAppleX = round(random.randrange(0, display_width - block_size))# / 10.0) * 10.0
-                randAppleY = round(random.randrange(0, display_height - block_size))# / 10.0) * 10.0
+
+                #Gives the coordinates to the apple.
+                randAppleX, randAppleY = randAppleGenerator()
                 snakeLength += 1
                 
         # Parameter is the frame/sec, 30 is standard. 15 for Snake game is okey.

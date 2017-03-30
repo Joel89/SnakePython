@@ -2,7 +2,6 @@ import pygame
 import time
 import random
 
-
 #----------------------------------Functions that need to iniatize to run games. -------------#
 pygame.init()
 

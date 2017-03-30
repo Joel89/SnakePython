@@ -171,6 +171,15 @@ def message_to_screen(message, color, y_displace=0, size="small"):
 # So the user can pause the game.
 def pause():
     paused = True
+    # gameDisplay.fill(white)
+    message_to_screen("Paused",
+                      black,
+                      -100,
+                      size="large")
+    message_to_screen("Press C to continue or Q to quit.",
+                      black,
+                      25)
+    pygame.display.update()
 
     while paused:
         for event in pygame.event.get():
@@ -186,16 +195,6 @@ def pause():
                     pygame.quit()
                     quit()
 
-
-        gameDisplay.fill(white)
-        message_to_screen("Paused",
-                          black,
-                          -100,
-                          size="large")
-        message_to_screen("Press C to continue or Q to quit.",
-                          black,
-                          25)
-        pygame.display.update()
         clock.tick(5)
 
 # Function that produce the score for the user.
@@ -244,9 +243,9 @@ def gameLoop():
 
     while not gameExit:
 
-        while gameOver == True:
+        if gameOver == True:
 
-            gameDisplay.fill(white)
+            #gameDisplay.fill(white)
 
             #If the function has a default parameter it is recommended to write out the variable name so it easier to get
             # understanding of the code.
@@ -261,6 +260,8 @@ def gameLoop():
                                "medium")
 
             pygame.display.update()
+
+        while gameOver == True:
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
